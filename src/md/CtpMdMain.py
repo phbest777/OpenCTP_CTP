@@ -38,8 +38,7 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
         "OpenInterest": 0.0,
         "TradingDay": "99999999",
     }
-
-    def __init__(self, front: str):
+    def __init__(self, front: str,intruments):
         print("-------------------------------- 启动 mduser api demo ")
         super().__init__()
         self._front = front
@@ -47,10 +46,9 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
         self._api = mdapi.CThostFtdcMdApi.CreateFtdcMdApi(
             "data\\md\\MD"
         )  # type: mdapi.CThostFtdcMdApi
-
+        self.oneminutecls = OneMinuteTick(instruments)
         print("CTP行情API版本号:", self._api.GetApiVersion())
         print("行情前置:" + self._front)
-
         # 注册行情前置
         self._api.RegisterFront(self._front)
         # 注册行情回调实例
@@ -91,6 +89,7 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
             [i.encode("utf-8") for i in instruments], len(instruments)
         )
 
+
     def GetOneMinuteBar(self, pDepthMarketData: mdapi.CThostFtdcDepthMarketDataField):
         """
         self.bar_cache["InstrumentID"] = pDepthMarketData.InstrumentID
@@ -103,7 +102,8 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
         print("bar_cache is:")
         print(self.bar_cache)
         """
-        oneminutecls=OneMinuteTick(pDepthMarketData.InstrumentID)
+
+        self.oneminutecls.GetOneMinuteTick(pDepthMarketData)
     def OnRtnDepthMarketData(
             self, pDepthMarketData: mdapi.CThostFtdcDepthMarketDataField
     ):
@@ -185,10 +185,11 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
 
 
 if __name__ == "__main__":
-    spi = CMdSpiImpl(config.fronts["电信2"]["md"])
+    instruments = ("SA401",)
+    spi = CMdSpiImpl(config.fronts["电信2"]["md"],instruments)
 
     # 注意选择有效合约, 没有行情可能是过期合约或者不再交易时间内导致
-    instruments = ("SA401", "FG401", "UR401", "SH405", "eg2401", "p2401")
+
     conn = cx_Oracle.connect('user_ph', 'ph', '127.0.1.1:1521/orclpdb')
     cursor = conn.cursor()
     print('连接数据库成功！')
