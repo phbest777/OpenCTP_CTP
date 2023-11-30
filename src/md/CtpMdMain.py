@@ -156,10 +156,10 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
               "," + str(pDepthMarketData.OpenInterest - pDepthMarketData.PreOpenInterest) + \
               "," + str(
             (pDepthMarketData.OpenInterest - pDepthMarketData.PreOpenInterest) / pDepthMarketData.PreOpenInterest) + ")"
-        # print("sqlstr is:" + sql)
-        self.GetOneMinuteBar(pDepthMarketData)
-        # cursor.execute(sql)
-        # conn.commit()
+        print("sqlstr is:" + sql)
+        #self.GetOneMinuteBar(pDepthMarketData)
+        cursor.execute(sql)
+        conn.commit()
 
     def OnRspSubMarketData(
             self,
