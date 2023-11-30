@@ -44,18 +44,23 @@ class OneMinuteTick:
             self.bar_dict[pDepthMarketData.InstrumentID]["Volume"] = 0.00
             self.bar_dict[pDepthMarketData.InstrumentID]["HighPrice"] = 0.00
             self.bar_dict[pDepthMarketData.InstrumentID]["LowPrice"] = 0.00
-            self.bar_dict[pDepthMarketData.InstrumentID]["Turnover"]=0.00
+            self.bar_dict[pDepthMarketData.InstrumentID]["Turnover"] = 0.00
         else:
             self.bar_dict[pDepthMarketData.InstrumentID]["UpdateMinute"] = pDepthMarketData.UpdateTime[:-2]
             self.bar_dict[pDepthMarketData.InstrumentID]["UpdateTime"] = pDepthMarketData.UpdateTime
             self.bar_dict[pDepthMarketData.InstrumentID]["LastPrice"] = pDepthMarketData.LastPrice
             self.bar_dict[pDepthMarketData.InstrumentID]["TickVolume"] = pDepthMarketData.Volume
-            self.bar_dict[pDepthMarketData.InstrumentID]["Volume"] += pDepthMarketData.Volume - self.bar_dict[pDepthMarketData.InstrumentID]["TickVolume"]
-            self.bar_dict[pDepthMarketData.InstrumentID]["TickTurnover"] =pDepthMarketData.Turnover
-            self.bar_dict[pDepthMarketData.InstrumentID]["Turnover"] += pDepthMarketData.Turnover-self.bar_dict[pDepthMarketData.InstrumentID]["TickTurnover"]
-            self.bar_dict[pDepthMarketData.InstrumentID]["OpenInterest"]=pDepthMarketData.OpenInterest
-            self.bar_dict[pDepthMarketData.InstrumentID]["PreOpenInterest"]=pDepthMarketData.PreOpenInterest
-            self.bar_dict[pDepthMarketData.InstrumentID]["MinusInterest"]=pDepthMarketData.OpenInterest-pDepthMarketData.PreOpenInterest
+            self.bar_dict[pDepthMarketData.InstrumentID]["Volume"] += pDepthMarketData.Volume - \
+                                                                      self.bar_dict[pDepthMarketData.InstrumentID][
+                                                                          "TickVolume"]
+            self.bar_dict[pDepthMarketData.InstrumentID]["TickTurnover"] = pDepthMarketData.Turnover
+            self.bar_dict[pDepthMarketData.InstrumentID]["Turnover"] += pDepthMarketData.Turnover - \
+                                                                        self.bar_dict[pDepthMarketData.InstrumentID][
+                                                                            "TickTurnover"]
+            self.bar_dict[pDepthMarketData.InstrumentID]["OpenInterest"] = pDepthMarketData.OpenInterest
+            self.bar_dict[pDepthMarketData.InstrumentID]["PreOpenInterest"] = pDepthMarketData.PreOpenInterest
+            self.bar_dict[pDepthMarketData.InstrumentID][
+                "MinusInterest"] = pDepthMarketData.OpenInterest - pDepthMarketData.PreOpenInterest
         if self.bar_dict[pDepthMarketData.InstrumentID]["HighPrice"] <= pDepthMarketData.LastPrice:
             self.bar_dict[pDepthMarketData.InstrumentID]["HighPrice"] = pDepthMarketData.LastPrice
         if self.bar_dict[pDepthMarketData.InstrumentID]["LowPrice"] >= pDepthMarketData.LastPrice:
@@ -64,6 +69,9 @@ class OneMinuteTick:
         if is_new_1minute and last_update_time != "99:99:99":
             for md_queue in self.md_queue_list:
                 md_queue.put(copy.deepcopy(self.bar_dict[pDepthMarketData.InstrumentID]))
-        # print(
-        #    "is_new_1minute is:"+str(is_new_1minute)+",Instrument is:" + pDepthMarketData.InstrumentID + ",LastPrice is:" + str(pDepthMarketData.LastPrice) + ", high price is:" +
-        #    str(self.bar_dict[pDepthMarketData.InstrumentID]["HighPrice"]))
+        print("is_new_1minute is:" + str(
+            is_new_1minute) + ",Instrument is:" + pDepthMarketData.InstrumentID + ",LastPrice is:" + str(
+            pDepthMarketData.LastPrice) + ", high price is:" +
+              str(self.bar_dict[pDepthMarketData.InstrumentID]["HighPrice"]) + ",volume is:" + str(
+            self.bar_dict[pDepthMarketData.InstrumentID]["Volume"]) + ",turnover is:" + str(
+            self.bar_dict[pDepthMarketData.InstrumentID]["Turnover"]))
