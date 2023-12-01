@@ -103,7 +103,7 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
         print(self.bar_cache)
         """
 
-        self.oneminutecls.GetOneMinuteTick(pDepthMarketData)
+        return self.oneminutecls.GetOneMinuteTick(pDepthMarketData)
     def OnRtnDepthMarketData(
             self, pDepthMarketData: mdapi.CThostFtdcDepthMarketDataField
     ):
@@ -156,10 +156,11 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
               "," + str(pDepthMarketData.OpenInterest - pDepthMarketData.PreOpenInterest) + \
               "," + str(
             (pDepthMarketData.OpenInterest - pDepthMarketData.PreOpenInterest) / pDepthMarketData.PreOpenInterest) + ")"
-        #print("sqlstr is:" + sql)
-        self.GetOneMinuteBar(pDepthMarketData)
-        #cursor.execute(sql)
-        #conn.commit()
+        sql2 = self.GetOneMinuteBar(pDepthMarketData)
+        print("sqlstr is:" + sql2)
+
+        cursor.execute(sql2)
+        conn.commit()
 
     def OnRspSubMarketData(
             self,
@@ -185,7 +186,7 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
 
 
 if __name__ == "__main__":
-    instruments = ("UR401",)
+    instruments = ("SA401",)
     spi = CMdSpiImpl(config.fronts["电信2"]["md"],instruments)
 
     # 注意选择有效合约, 没有行情可能是过期合约或者不再交易时间内导致
