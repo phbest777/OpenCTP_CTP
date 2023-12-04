@@ -147,12 +147,14 @@ class OneMinuteTick:
                 self.bar_dict[pDepthMarketData.InstrumentID]["Volume"] = 0
                 self.bar_dict[pDepthMarketData.InstrumentID]["Turnover"] = 0.00
             else:
+                oneMinuteDic_Temp=self.bar_dict[pDepthMarketData.InstrumentID]
                 self.bar_dict[pDepthMarketData.InstrumentID]["Volume"] = pDepthMarketData.Volume - \
                                                                          self.bar_dict[pDepthMarketData.InstrumentID][
                                                                              "TickVolume"]
                 self.bar_dict[pDepthMarketData.InstrumentID]["Turnover"] = pDepthMarketData.Turnover - \
                                                                            self.bar_dict[pDepthMarketData.InstrumentID][
                                                                                "TickTurnover"]
+                return(self.GetOneMinuteStr(oneMinuteDic_Temp))
             self.bar_dict[pDepthMarketData.InstrumentID]["TickVolume"] = pDepthMarketData.Volume
             self.bar_dict[pDepthMarketData.InstrumentID]["TickTurnover"] = pDepthMarketData.Turnover
         else:
@@ -200,6 +202,31 @@ class OneMinuteTick:
             (pDepthMarketData.OpenInterest - pDepthMarketData.PreOpenInterest) / pDepthMarketData.PreOpenInterest) + ")"
 
         # print("sqlstr is:"+sql)
-        return sql
+        self.return_str["code"] = "001"
+        self.return_str["returnstr"]=sql
+        return self.return_str
         #sql="is_new_1minute is:"+str(is_new_1minute)
         #return sql
+    def GetOneMinuteStr(self,oneminuteDic):
+        sql="insert into QUANT_FUTURE_MD_ONEMIN (TRADINGDAY,INSTRUMENTID,LASTPRICE,HIGHESTPRICE,LOWESTPRICE,PRESETTLEMENTPRICE" \
+              ",PRECLOSEPRICE,PREOPENINTEREST,OPENPRICE,VOLUME,TURNOVER,OPENINTEREST" \
+              ",UPDATETIME,UPDATEMINUTE,UPRATIO,INTERESTMINUS,INTERESTRATIO)values(" \
+              "'" + oneminuteDic["TradingDay"] + "','" + oneminuteDic["InstrumentID"] + \
+              "'," + str(oneminuteDic["LastPrice"]) + \
+              "," + str(oneminuteDic["HighPrice"]) + \
+              "," + str(oneminuteDic["LowPrice"]) + \
+              "," + str(oneminuteDic["PreSettlementPrice"]) + \
+              "," + str(oneminuteDic["PreClosePrice"]) + \
+              "," + str(oneminuteDic["PreOpenInterest"]) + \
+              "," + str(oneminuteDic["OpenPrice"]) + \
+              "," + str(oneminuteDic["Volume"]) + \
+              "," + str(oneminuteDic["Turnover"]) + \
+              "," + str(oneminuteDic["OpenInterest"]) + \
+              ",'" + oneminuteDic["UpdateTime"] + \
+              "','" + oneminuteDic["UpdateMinute"] + \
+              "'," + str((oneminuteDic["LastPrice"] - oneminuteDic["PreSettlementPrice"]) / oneminuteDic["PreSettlementPrice"]) + \
+              "," + str(oneminuteDic["MinusInterest"]) + \
+              "," + str((oneminuteDic["OpenInterest"] - oneminuteDic["PreOpenInterest"]) / oneminuteDic["PreOpenInterest"]) + ")"
+        self.return_str["code"]="002"
+        self.return_str["returnstr"]=sql
+        return self.return_str
