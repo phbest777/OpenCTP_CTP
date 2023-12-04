@@ -103,7 +103,8 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
         print(self.bar_cache)
         """
 
-        return self.oneminutecls.GetOneMinuteTick(pDepthMarketData)
+        #return self.oneminutecls.GetOneMinuteTick(pDepthMarketData)
+        return self.oneminutecls.GetOneMinute(pDepthMarketData)
     def OnRtnDepthMarketData(
             self, pDepthMarketData: mdapi.CThostFtdcDepthMarketDataField
     ):
@@ -121,7 +122,7 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
               " Volume:", pDepthMarketData.Volume, " PreSettlementPrice:", pDepthMarketData.PreSettlementPrice,
               " PreClosePrice:", pDepthMarketData.PreClosePrice, " TradingDay:", pDepthMarketData.TradingDay)
         '''
-
+        '''
         sql = "insert into QUANT_FUTURE_MD_TICKS (TRADINGDAY,INSTRUMENTID,EXCHANGEID,EXCHANGEINSTID,LASTPRICE,PRESETTLEMENTPRICE" \
               ",PRECLOSEPRICE,PREOPENINTEREST,OPENPRICE,HIGHESTPRICE,LOWESTPRICE,VOLUME,TURNOVER,OPENINTEREST,CLOSEPRICE" \
               ",SETTLEMENTPRICE,UPPERLIMITPRICE,LOWERLIMITPRICE,PREDELTA,CURRDELTA,UPDATETIME,UPDATEMILLISEC,BIDPRICE1" \
@@ -156,6 +157,7 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
               "," + str(pDepthMarketData.OpenInterest - pDepthMarketData.PreOpenInterest) + \
               "," + str(
             (pDepthMarketData.OpenInterest - pDepthMarketData.PreOpenInterest) / pDepthMarketData.PreOpenInterest) + ")"
+            '''
         sql2 = self.GetOneMinuteBar(pDepthMarketData)
         print("sqlstr is:" + sql2)
 
