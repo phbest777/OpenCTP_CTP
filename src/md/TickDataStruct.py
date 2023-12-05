@@ -68,6 +68,7 @@ class OneMinuteTick:
 
         self.bar_dict[pDepthMarketData.InstrumentID]["UpdateMinute"] = pDepthMarketData.UpdateTime[:-3]
         self.bar_dict[pDepthMarketData.InstrumentID]["UpdateTime"] = pDepthMarketData.UpdateTime
+        self.bar_dict[pDepthMarketData.InstrumentID]["TradingDay"] = pDepthMarketData.TradingDay
         if is_new_1minute:
             if last_update_time == "99:99:99":
                 self.bar_dict[pDepthMarketData.InstrumentID]["Volume"] = 0
@@ -138,18 +139,27 @@ class OneMinuteTick:
     def GetOneMinute(self,pDepthMarketData):
         last_update_time = self.bar_dict[pDepthMarketData.InstrumentID]["UpdateTime"]
         is_new_1minute = (pDepthMarketData.UpdateTime[:-2] != last_update_time[:-2]) and pDepthMarketData.UpdateTime != '21:00:00'
+        if is_new_1minute:
+            if last_update_time!="99:99:99":
+                #print("is_new_1minute is:"+str(is_new_1minute)+",last_update_time is:"+last_update_time)
+                oneMinuteDic_Temp=self.bar_dict[pDepthMarketData.InstrumentID].copy()
+                self.bar_dict[pDepthMarketData.InstrumentID]["UpdateMinute"] = pDepthMarketData.UpdateTime[:-3]
+                self.bar_dict[pDepthMarketData.InstrumentID]["UpdateTime"] = pDepthMarketData.UpdateTime
+                self.bar_dict[pDepthMarketData.InstrumentID]["TradingDay"] = pDepthMarketData.TradingDay
+                self.bar_dict[pDepthMarketData.InstrumentID]["Volume"] = 0
+                self.bar_dict[pDepthMarketData.InstrumentID]["Turnover"] = 0.00
+                return (self.GetOneMinuteStr(oneMinuteDic_Temp))
         self.bar_dict[pDepthMarketData.InstrumentID]["UpdateMinute"] = pDepthMarketData.UpdateTime[:-3]
         self.bar_dict[pDepthMarketData.InstrumentID]["UpdateTime"] = pDepthMarketData.UpdateTime
-        print("is_new_1minute is:"+str(is_new_1minute))
+        self.bar_dict[pDepthMarketData.InstrumentID]["TradingDay"] = pDepthMarketData.TradingDay
+        #print("is_new_1minute is:"+str(is_new_1minute))
         if is_new_1minute:
             if last_update_time == "99:99:99":
                 self.bar_dict[pDepthMarketData.InstrumentID]["Volume"] = 0
                 self.bar_dict[pDepthMarketData.InstrumentID]["Turnover"] = 0.00
             else:
-                oneMinuteDic_Temp=self.bar_dict[pDepthMarketData.InstrumentID]
                 self.bar_dict[pDepthMarketData.InstrumentID]["Volume"] = pDepthMarketData.Volume - self.bar_dict[pDepthMarketData.InstrumentID]["TickVolume"]
                 self.bar_dict[pDepthMarketData.InstrumentID]["Turnover"] = pDepthMarketData.Turnover - self.bar_dict[pDepthMarketData.InstrumentID]["TickTurnover"]
-                return(self.GetOneMinuteStr(oneMinuteDic_Temp))
             self.bar_dict[pDepthMarketData.InstrumentID]["TickVolume"] = pDepthMarketData.Volume
             self.bar_dict[pDepthMarketData.InstrumentID]["TickTurnover"] = pDepthMarketData.Turnover
         else:
@@ -168,8 +178,9 @@ class OneMinuteTick:
             if self.bar_dict[pDepthMarketData.InstrumentID]["LowPrice"] >= pDepthMarketData.LastPrice:
                 self.bar_dict[pDepthMarketData.InstrumentID]["LowPrice"] = pDepthMarketData.LastPrice
             self.bar_dict[pDepthMarketData.InstrumentID]["OpenPrice"] = pDepthMarketData.OpenPrice
-
-        sql = "update into QUANT_FUTURE_MD_ONEMIN (TRADINGDAY,INSTRUMENTID,LASTPRICE,HIGHESTPRICE,LOWESTPRICE,PRESETTLEMENTPRICE" \
+        return "ddd"
+        '''
+        sql = "insert into QUANT_FUTURE_MD_ONEMIN (TRADINGDAY,INSTRUMENTID,LASTPRICE,HIGHESTPRICE,LOWESTPRICE,PRESETTLEMENTPRICE" \
               ",PRECLOSEPRICE,PREOPENINTEREST,OPENPRICE,VOLUME,TURNOVER,OPENINTEREST" \
               ",UPDATETIME,UPDATEMINUTE,UPRATIO,INTERESTMINUS,INTERESTRATIO)values(" \
               "'" + pDepthMarketData.TradingDay + "','" + self.bar_dict[pDepthMarketData.InstrumentID]["InstrumentID"] + \
@@ -195,6 +206,7 @@ class OneMinuteTick:
         #return self.return_str
         #sql="is_new_1minute is:"+str(is_new_1minute)
         return sql
+        '''
     def GetOneMinuteStr(self,oneminuteDic):
         sql="insert into QUANT_FUTURE_MD_ONEMIN (TRADINGDAY,INSTRUMENTID,LASTPRICE,HIGHESTPRICE,LOWESTPRICE,PRESETTLEMENTPRICE" \
               ",PRECLOSEPRICE,PREOPENINTEREST,OPENPRICE,VOLUME,TURNOVER,OPENINTEREST" \
