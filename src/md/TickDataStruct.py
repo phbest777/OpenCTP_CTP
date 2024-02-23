@@ -1,5 +1,5 @@
 import copy
-
+import time
 
 class OneMinuteTick:
     OneMinuteDic = {
@@ -10,8 +10,10 @@ class OneMinuteTick:
         "HighPrice": 0.00,
         "LowPrice": 9999999.00,
         "OpenPrice": 0.00,
+        "OneMinOpenPrice": 0.00,
         "PreSettlementPrice": 0.00,
         "PreClosePrice": 0.00,
+        "OneMinPreClosePrice": 1.00,
         "TickVolume": 0,
         "Volume": 0,
         "TickTurnover": 0.00,
@@ -103,6 +105,7 @@ class OneMinuteTick:
                 self.bar_dict[pDepthMarketData.InstrumentID]["LowPrice"] = pDepthMarketData.LastPrice
             self.bar_dict[pDepthMarketData.InstrumentID]["OpenPrice"] = pDepthMarketData.OpenPrice
 
+
         sql = "insert into QUANT_FUTURE_MD_ONEMIN (TRADINGDAY,INSTRUMENTID,LASTPRICE,HIGHESTPRICE,LOWESTPRICE,PRESETTLEMENTPRICE" \
             ",PRECLOSEPRICE,PREOPENINTEREST,OPENPRICE,VOLUME,TURNOVER,OPENINTEREST" \
             ",UPDATETIME,UPDATEMINUTE,UPRATIO,INTERESTMINUS,INTERESTRATIO)values(" \
@@ -147,13 +150,34 @@ class OneMinuteTick:
             if last_update_time == "99:99:99":
                 self.bar_dict[pDepthMarketData.InstrumentID]["Volume"] = 0
                 self.bar_dict[pDepthMarketData.InstrumentID]["Turnover"] = 0.00
+                '''
+                if pDepthMarketData.UpdateTime[:-3]=="09:00":
+                    self.bar_dict[pDepthMarketData.InstrumentID]["HighPrice"] = pDepthMarketData.LastPrice
+                    self.bar_dict[pDepthMarketData.InstrumentID]["LowPrice"] = pDepthMarketData.LastPrice
+                    self.bar_dict[pDepthMarketData.InstrumentID]["TickVolume"] = 0
+                    self.bar_dict[pDepthMarketData.InstrumentID]["TickTurnover"] = 0.00
+                    self.bar_dict[pDepthMarketData.InstrumentID]["OpenInterest"] = pDepthMarketData.OpenInterest
+                    self.bar_dict[pDepthMarketData.InstrumentID]["PreOpenInterest"] = pDepthMarketData.PreOpenInterest
+                    self.bar_dict[pDepthMarketData.InstrumentID]["PreSettlementPrice"] = pDepthMarketData.PreSettlementPrice
+                    self.bar_dict[pDepthMarketData.InstrumentID]["PreClosePrice"] = pDepthMarketData.PreClosePrice
+                    self.bar_dict[pDepthMarketData.InstrumentID]["OneMinPreClosePrice"]=1.0
+                    temp_Minute_bar_dic=self.bar_dict[pDepthMarketData.InstrumentID].copy()
+                    return(self.GetOneMinuteStr(temp_Minute_bar_dic))
+                '''
+
             else:
-                oneMinuteDic_Temp=self.bar_dict[pDepthMarketData.InstrumentID]
+                oneMinuteDic_Temp=self.bar_dict[pDepthMarketData.InstrumentID].copy()
+                self.bar_dict[pDepthMarketData.InstrumentID]["HighPrice"]=pDepthMarketData.LastPrice
+                self.bar_dict[pDepthMarketData.InstrumentID]["LowPrice"]=pDepthMarketData.LastPrice
                 self.bar_dict[pDepthMarketData.InstrumentID]["Volume"] = pDepthMarketData.Volume - self.bar_dict[pDepthMarketData.InstrumentID]["TickVolume"]
                 self.bar_dict[pDepthMarketData.InstrumentID]["Turnover"] = pDepthMarketData.Turnover - self.bar_dict[pDepthMarketData.InstrumentID]["TickTurnover"]
+                self.bar_dict[pDepthMarketData.InstrumentID]["OneMinOpenPrice"]=pDepthMarketData.LastPrice
+                self.bar_dict[pDepthMarketData.InstrumentID]["OneMinPreClosePrice"]=self.bar_dict[pDepthMarketData.InstrumentID]["LastPrice"]
+                self.bar_dict[pDepthMarketData.InstrumentID]["TickVolume"] = pDepthMarketData.Volume
+                self.bar_dict[pDepthMarketData.InstrumentID]["TickTurnover"] = pDepthMarketData.Turnover
+                self.bar_dict[pDepthMarketData.InstrumentID]["PreClosePrice"] = pDepthMarketData.PreClosePrice
                 return(self.GetOneMinuteStr(oneMinuteDic_Temp))
-            self.bar_dict[pDepthMarketData.InstrumentID]["TickVolume"] = pDepthMarketData.Volume
-            self.bar_dict[pDepthMarketData.InstrumentID]["TickTurnover"] = pDepthMarketData.Turnover
+
         else:
             self.bar_dict[pDepthMarketData.InstrumentID]["LastPrice"] = pDepthMarketData.LastPrice
             self.bar_dict[pDepthMarketData.InstrumentID]["Volume"] += pDepthMarketData.Volume - self.bar_dict[pDepthMarketData.InstrumentID]["TickVolume"]
@@ -202,7 +226,7 @@ class OneMinuteTick:
     def GetOneMinuteStr(self,oneminuteDic):
         sql="insert into QUANT_FUTURE_MD_ONEMIN (TRADINGDAY,INSTRUMENTID,LASTPRICE,HIGHESTPRICE,LOWESTPRICE,PRESETTLEMENTPRICE" \
               ",PRECLOSEPRICE,PREOPENINTEREST,OPENPRICE,VOLUME,TURNOVER,OPENINTEREST" \
-              ",UPDATETIME,UPDATEMINUTE,UPRATIO,INTERESTMINUS,INTERESTRATIO)values(" \
+              ",UPDATETIME,UPDATEMINUTE,UPRATIO,INTERESTMINUS,INTERESTRATIO,ONEMINOPENPRICE,AVERPRICE,ONEMINUPRATIO,ONEMINUPPRICE,NOWTIMESTAMP )values(" \
               "'" + oneminuteDic["TradingDay"] + "','" + oneminuteDic["InstrumentID"] + \
               "'," + str(oneminuteDic["LastPrice"]) + \
               "," + str(oneminuteDic["HighPrice"]) + \
@@ -218,7 +242,12 @@ class OneMinuteTick:
               "','" + oneminuteDic["UpdateMinute"] + \
               "'," + str((oneminuteDic["LastPrice"] - oneminuteDic["PreSettlementPrice"]) / oneminuteDic["PreSettlementPrice"]) + \
               "," + str(oneminuteDic["MinusInterest"]) + \
-              "," + str((oneminuteDic["OpenInterest"] - oneminuteDic["PreOpenInterest"]) / oneminuteDic["PreOpenInterest"]) + ")"
+              "," + str((oneminuteDic["OpenInterest"] - oneminuteDic["PreOpenInterest"]) / oneminuteDic["PreOpenInterest"]) +\
+              ","+str(oneminuteDic["OneMinOpenPrice"])+\
+              ","+str(oneminuteDic["TickTurnover"] / oneminuteDic["TickVolume"])+\
+              ","+str((oneminuteDic["LastPrice"] - oneminuteDic["OneMinPreClosePrice"]) / oneminuteDic["OneMinPreClosePrice"])+\
+              ","+str(oneminuteDic["LastPrice"] - oneminuteDic["OneMinPreClosePrice"])+\
+              ",'"+str(time.time()*1000)[:13]+"')"
         #self.return_str["code"]="002"
         #self.return_str["returnstr"]=sql
         return sql

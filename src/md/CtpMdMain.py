@@ -191,7 +191,7 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
 
 
 if __name__ == "__main__":
-    instruments = ("SA401",)
+    instruments = ("SA405","SH405","FG405","P405")
     spi = CMdSpiImpl(config.fronts["电信2"]["md"],instruments)
 
     # 注意选择有效合约, 没有行情可能是过期合约或者不再交易时间内导致
