@@ -3,14 +3,19 @@
 
     注意选择有效合约, 没有行情可能是过期合约或者不再交易时间内导致
 """
+import asyncio
 import inspect
 import os
 import sys
 from pprint import pprint
 
 import cx_Oracle
+import random
 
+# import src.md.test
 # curPath = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+import websockets
+
 sys.path.append('D:\PythonProject\OpenCTP_CTP')
 from openctp_ctp import mdapi
 
@@ -38,7 +43,9 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
         "OpenInterest": 0.0,
         "TradingDay": "99999999",
     }
-    def __init__(self, front: str,intruments):
+    sql2 = ''
+
+    def __init__(self, front: str, intruments):
         print("-------------------------------- 启动 mduser api demo ")
         super().__init__()
         self._front = front
@@ -64,6 +71,11 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
         # 登录请求, 行情登录不进行信息校验
         print("登录请求")
         req = mdapi.CThostFtdcReqUserLoginField()
+        req.BrokerID=config.broker_id
+        req.UserID=config.user
+        req.Password=config.password
+        print("broke id is:"+req.BrokerID)
+        print("broke user is:" +req.UserID)
         self._api.ReqUserLogin(req, 0)
 
     def OnRspUserLogin(
@@ -89,7 +101,6 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
             [i.encode("utf-8") for i in instruments], len(instruments)
         )
 
-
     def GetOneMinuteBar(self, pDepthMarketData: mdapi.CThostFtdcDepthMarketDataField):
         """
         self.bar_cache["InstrumentID"] = pDepthMarketData.InstrumentID
@@ -103,8 +114,9 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
         print(self.bar_cache)
         """
 
-        #return self.oneminutecls.GetOneMinuteTick(pDepthMarketData)
+        # return self.oneminutecls.GetOneMinuteTick(pDepthMarketData)
         return self.oneminutecls.GetOneMinute(pDepthMarketData)
+
     def OnRtnDepthMarketData(
             self, pDepthMarketData: mdapi.CThostFtdcDepthMarketDataField
     ):
@@ -159,13 +171,15 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
             (pDepthMarketData.OpenInterest - pDepthMarketData.PreOpenInterest) / pDepthMarketData.PreOpenInterest) + ")"
             '''
         sql2 = self.GetOneMinuteBar(pDepthMarketData)
-        #print("sql2 is:"+sql2)
-        if sql2!="ddd":
+        #filename = 'test.py'
+        #exec(open(filename).read())
+        # print("sql2 is:"+sql2)
+        if sql2 != "ddd":
             print("sqlstr is:" + sql2)
             cursor.execute(sql2)
             conn.commit()
-        #cursor.execute(sql2["return_str"])
-        #conn.commit()
+        # cursor.execute(sql2["return_str"])
+        # conn.commit()
 
     def OnRspSubMarketData(
             self,
@@ -191,12 +205,25 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
 
 
 if __name__ == "__main__":
-    instruments = ("SA405","SH405","FG405","P405")
-    spi = CMdSpiImpl(config.fronts["电信2"]["md"],instruments)
-
+    instruments = ("SA409", "SH409", "FG409", "P409")
+    spi = CMdSpiImpl(config.fronts["电信2"]["md"], instruments)
     # 注意选择有效合约, 没有行情可能是过期合约或者不再交易时间内导致
 
     conn = cx_Oracle.connect('user_ph', 'ph', '127.0.1.1:1521/orclpdb')
     cursor = conn.cursor()
     print('连接数据库成功！')
     spi.wait()
+
+
+    async def time(websocket, path):
+        while True:
+            now = str(random.randint(0, 100))
+            print(now)
+            await websocket.send(now)
+            #await asyncio.sleep(random.random() * 3)
+
+
+    start_server = websockets.serve(time, "127.0.0.1", 5678)
+    print(' ========= websocket running =========')
+    asyncio.get_event_loop().run_until_complete(start_server)
+    asyncio.get_event_loop().run_forever()

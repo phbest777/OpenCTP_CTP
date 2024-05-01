@@ -1,5 +1,7 @@
 import copy
 import time
+import asyncio
+import websockets
 
 class OneMinuteTick:
     OneMinuteDic = {
@@ -62,6 +64,8 @@ class OneMinuteTick:
             self.OneMinuteDic["InstrumentID"] = instrument_id
             self.bar_dict[instrument_id] = self.OneMinuteDic.copy()
             # print("bar_dict is"+str(self.bar_dict[instrument_id]["LastPrice"]))
+
+
 
     def GetOneMinuteTick(self, pDepthMarketData):
         last_update_time = self.bar_dict[pDepthMarketData.InstrumentID]["UpdateTime"]
@@ -226,7 +230,7 @@ class OneMinuteTick:
     def GetOneMinuteStr(self,oneminuteDic):
         sql="insert into QUANT_FUTURE_MD_ONEMIN (TRADINGDAY,INSTRUMENTID,LASTPRICE,HIGHESTPRICE,LOWESTPRICE,PRESETTLEMENTPRICE" \
               ",PRECLOSEPRICE,PREOPENINTEREST,OPENPRICE,VOLUME,TURNOVER,OPENINTEREST" \
-              ",UPDATETIME,UPDATEMINUTE,UPRATIO,INTERESTMINUS,INTERESTRATIO,ONEMINOPENPRICE,AVERPRICE,ONEMINUPRATIO,ONEMINUPPRICE,NOWTIMESTAMP )values(" \
+              ",UPDATETIME,UPDATEMINUTE,UPRATIO,INTERESTMINUS,INTERESTRATIO,ONEMINOPENPRICE,AVERPRICE,ONEMINUPRATIO,ONEMINUPPRICE,ONETIMESTAMP )values(" \
               "'" + oneminuteDic["TradingDay"] + "','" + oneminuteDic["InstrumentID"] + \
               "'," + str(oneminuteDic["LastPrice"]) + \
               "," + str(oneminuteDic["HighPrice"]) + \

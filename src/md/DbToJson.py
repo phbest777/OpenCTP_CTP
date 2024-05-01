@@ -10,7 +10,7 @@ sys.path.append('D:\PythonProject\OpenCTP_CTP')
 if __name__ == "__main__":
     conn = cx_Oracle.connect('user_ph', 'ph', '127.0.1.1:1521/orclpdb')
     cursor = conn.cursor()
-    DesFilePath="D:\\GitRepository\\ZJJGWebFront\\src\\views\\acc_debt\\acc_debt_oper_batch\\data\\"
+    DesFilePath="D:\\GitRepository\\ZJJGWebFront\\src\\views\\acc_debt\\acc_debt_oper_new \\data\\"
     DesFileName=DesFilePath+"test1.json"
     #print("timestamp is"+str(datetime.datetime.now().timestamp()))
     #print("timestamp is" + str(datetime.datetime.now().timestamp()))

@@ -105,13 +105,13 @@ class CTdSpiImpl(api.CThostFtdcTraderSpi):
               "'," + str(pInstrument.LongMarginRatio)[:7] + "," + str(
             pInstrument.ShortMarginRatio)[:7] + ",'" + pInstrument.MaxMarginSideAlgorithm + "'," + str(
             pInstrument.StrikePrice)[:7] + \
-              ",'" + str(pInstrument.OptionsType) + "'" + "," + str(pInstrument.UnderlyingMultiple) + ",'" + str(
+              ",'" + str(pInstrument.OptionsType) + "'" + "," + str(pInstrument.UnderlyingMultiple)[:2] + ",'" + str(
             pInstrument.CombinationType) + "','" + str(pInstrument.InstrumentID) + \
               "','" + str(pInstrument.ExchangeInstID) + "','" + str(pInstrument.ProductID) + "','" + str(
             pInstrument.UnderlyingInstrID) + "')"
         print("sqlstr is:" + sql)
-        #cursor.execute(sql)
-        #conn.commit()
+        cursor.execute(sql)
+        conn.commit()
 
     def OnRtnDepthMarketData(self, pDepthMarketData: api.CThostFtdcDepthMarketDataField):
         """ 深度行情 """

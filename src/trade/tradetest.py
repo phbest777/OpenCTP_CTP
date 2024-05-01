@@ -115,8 +115,8 @@ def market_order():
     req.BrokerID = broker_id
     req.InvestorID = user
     req.ExchangeID = 'CZCE'
-    req.InstrumentID = 'FG401'
-    req.LimitPrice = 1670
+    req.InstrumentID = 'SA409'
+    req.LimitPrice = 2251
     req.OrderPriceType = tdapi.THOST_FTDC_OPT_LimitPrice  # 价格类型市价单
     req.Direction = tdapi.THOST_FTDC_D_Buy  # 买
     req.CombOffsetFlag = tdapi.THOST_FTDC_OF_Open  # 开仓
