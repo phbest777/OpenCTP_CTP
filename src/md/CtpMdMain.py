@@ -44,7 +44,6 @@ class CMdSpiImpl(mdapi.CThostFtdcMdSpi):
         "TradingDay": "99999999",
     }
     sql2 = ''
-
     def __init__(self, front: str, intruments):
         print("-------------------------------- 启动 mduser api demo ")
         super().__init__()

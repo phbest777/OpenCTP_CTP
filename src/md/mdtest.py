@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
     tdfront = 'tcp://180.168.146.187:10201'
     user = '200231'
-    password = '777PHbest!!'
+    password = '000PHbest!!'
 
     brokerid = '9999'
     authcode = '0000000000000000'

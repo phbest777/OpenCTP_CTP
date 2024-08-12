@@ -43,7 +43,7 @@ if __name__ == '__main__':
                               'tcp://180.168.146.187:10211',
                               'tcp://180.168.146.187:10212',
                               'tcp://180.168.146.187:10213'))
-    instruments = ('SA409',)
+    instruments = ('SA409','FG409')
 
     md_api = mdapi.CThostFtdcMdApi.CreateFtdcMdApi("data\\md\\MD")
     print("ApiVersion: ", md_api.GetApiVersion())

@@ -1,7 +1,7 @@
 """
     交易demo - 订单录入
 """
-
+import cx_Oracle
 from openctp_ctp import tdapi
 
 td_fronts='tcp://180.168.146.187:10201'
@@ -99,7 +99,9 @@ class CTdSpiImpl(tdapi.CThostFtdcTraderSpi):
               "InsertDate:", pOrder.InsertDate,
               "InsertTime:", pOrder.InsertTime,
               )
-
+    def OnRtnTrade(self, pTrade: tdapi.CThostFtdcTradeField):
+        """成交通知，报单发出后有成交则通过此接口返回。私有流"""
+        print("成交流水-->"+pTrade.OrderSysID)
     def OnErrRtnOrderInsert(self, pInputOrder: tdapi.CThostFtdcInputOrderField,
                             pRspInfo: tdapi.CThostFtdcRspInfoField):
         """报单录入错误回报"""
@@ -121,7 +123,7 @@ def market_order():
     req.Direction = tdapi.THOST_FTDC_D_Buy  # 买
     req.CombOffsetFlag = tdapi.THOST_FTDC_OF_Open  # 开仓
     req.CombHedgeFlag = tdapi.THOST_FTDC_HF_Speculation
-    req.VolumeTotalOriginal = 5
+    req.VolumeTotalOriginal = 1
     req.IsAutoSuspend = 0
     req.IsSwapOrder = 0
     req.TimeCondition = tdapi.THOST_FTDC_TC_GFD
